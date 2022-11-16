@@ -12,6 +12,8 @@
     4) Regex para validar uma data é uma boa ideia?
 
     5) para CPF e CNPJ está sendo usado char e uma regex de validação, mas n estou considerando os pontos e traços, o SGBD pode formatar o numreo?
+
+    6) No PDF de entrega é dito que o .sql deve estar documentando, o que significa?
 */
 
 /* CONVEÇÕES ADOTADAS
