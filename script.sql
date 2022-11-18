@@ -95,3 +95,22 @@ INSERT INTO PET VALUES(3, 'Cão', 'Macho', 'Jerry', 'Pastor Alemão', 5, '42.762
 INSERT INTO PET VALUES(4, 'Cão', 'Fêmea', 'Luma', 'Pastor Belga', 5, '42.762.532/0001-06', TO_DATE('04/06/2021', 'dd/mm/yyyy'), NULL, NULL);
 INSERT INTO PET VALUES(5, 'Cão', 'Fêmea', 'Tina', 'Pastor Belga', 5, '16.571.380/0001-54', TO_DATE('04/06/2021', 'dd/mm/yyyy'), NULL, NULL);
 INSERT INTO PET VALUES(6, 'Cão', 'Fêmea', 'Luna', 'Husky Siberiano', 5, '16.571.380/0001-54', TO_DATE('04/06/2021', 'dd/mm/yyyy'), '123.456.789-10', TO_DATE('07/09/2022','dd/mm/yyyy'));
+
+--validar e ser mais criativo
+--INSERT INTO PRODUTO_DOADO VALUES('778.875.232-06', TO_DATE('07/09/2022', 'dd/mm/yyyy'), 'Ração', 'Ração pastor alemão premimum (2.5kg)', 'OTIMO', 'Royal', 2, 'GRANDE');
+--INSERT INTO PRODUTO_DOADO VALUES('883.458.339-69', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 'Brinquedos', 'Bola de Tênis', 'OTIMO', 'Royal', 4, 'MEDIO');
+INSERT INTO REMESSA VALUES('16.571.380/0001-54', '778.875.232-06', TO_DATE('07/09/2022', 'dd/mm/yyyy'), 8, 1, TO_DATE('04/11/2022', 'dd/mm/yyyy'));
+INSERT INTO REMESSA VALUES('16.571.380/0001-54', '883.458.339-69', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 7, 1, TO_DATE('04/11/2022', 'dd/mm/yyyy'));
+
+INSERT INTO PRODUTO_DOADO VALUES('232.350.830-06', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 'Brinquedos', 'Bola de Tênis', 'OTIMO', 'Royal', 4, 'MEDIO');
+INSERT INTO PRODUTO_DOADO VALUES('682.334.910-71', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 'Brinquedos', 'Bola de Tênis', 'OTIMO', 'Royal', 4, 'MEDIO');
+INSERT INTO PRODUTO_DOADO VALUES('287.202.084-56', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 'Brinquedos', 'Bola de Tênis', 'OTIMO', 'Royal', 4, 'MEDIO');
+INSERT INTO PRODUTO_DOADO VALUES('123.456.789-10', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 'Brinquedos', 'Bola de Tênis', 'OTIMO', 'Royal', 4, 'MEDIO');
+
+INSERT INTO REMESSA VALUES('11.020.997/0001-68', '287.202.084-56', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 1, 1, TO_DATE('04/11/2022', 'dd/mm/yyyy'));
+INSERT INTO REMESSA VALUES('11.020.997/0001-68', '287.202.084-56', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 2, 1, TO_DATE('04/11/2022', 'dd/mm/yyyy'));
+INSERT INTO REMESSA VALUES('78.875.232-06', '287.202.084-56', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 3, 1, TO_DATE('04/11/2022', 'dd/mm/yyyy'));
+INSERT INTO REMESSA VALUES('78.875.232-06', '287.202.084-56', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 4, 1, TO_DATE('04/11/2022', 'dd/mm/yyyy'));
+INSERT INTO REMESSA VALUES('42.762.532/0001-06', '682.334.910-71', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 5, 1, TO_DATE('04/11/2022', 'dd/mm/yyyy'));
+INSERT INTO REMESSA VALUES('42.762.532/0001-06', '232.350.830-06', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 6, 1, TO_DATE('04/11/2022', 'dd/mm/yyyy'));
+INSERT INTO REMESSA VALUES('16.571.380/0001-54', '123.456.789-10', TO_DATE('12/12/2022', 'dd/mm/yyyy'), 9, 1, TO_DATE('04/11/2022', 'dd/mm/yyyy'));
