@@ -1,8 +1,9 @@
-import Database
-
+import System as PetOng
 
 def main():
-    connection = Database()
+    system = PetOng.System()
+    system.run()
+    
 
-    connection.runQuery("SELECT * FROM DUAL")
-    connection.close()
+if __name__ == "__main__":
+    main()

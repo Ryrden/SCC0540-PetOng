@@ -1,7 +1,9 @@
-import cx_Oracle
+import cx_Oracle as oracle
 from dotenv import dotenv_values
 
 env = dotenv_values(".env")
+if env["INSTANT_CLIENT_PATH"]:
+    oracle.init_oracle_client(lib_dir=env["INSTANT_CLIENT_PATH"])
 
 
 class Database:
@@ -17,13 +19,13 @@ class Database:
         if Database.__instance != None:
             raise Exception("This class is a singleton!")
         else:
-            dsn_tns = cx_Oracle.makedsn(
-                env['DB_HOST'], 
-                env['DB_PORT'], 
-                service_name=env['DB_SERVICE_NAME'])
-            Database.__instance = cx_Oracle.connect(
-                env['DB_USER'], 
-                env['DB_PASSWORD'], 
+            dsn_tns = oracle.makedsn(
+                env["DB_HOST"], 
+                env["DB_PORT"], 
+                service_name=env["DB_SERVICE_NAME"])
+            Database.__instance = oracle.connect(
+                env["DB_USER"], 
+                env["DB_PASSWORD"], 
                 dsn_tns)
 
     def runQuery(self, query):
