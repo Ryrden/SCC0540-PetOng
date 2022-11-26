@@ -23,11 +23,13 @@ crie um arquivo .env na raiz do projeto e coloque as seguintes variáveis de amb
 
 ```
 DB_HOST=host
+DB_PORT=port
+DB_SERVICE_NAME=service
 DB_USER=user
 DB_PASSWORD=password
 ```
 
-onde `host` é o host do banco de dados, `user` é o usuário do banco de dados e `password` é a senha do banco de dados Oracle.
+onde `host` é o host do banco de dados, `port` é a porta do banco de dados e `service` é o nome do serviço do banco de dados, `user` é o usuário do banco de dados e `password` é a senha do banco de dados Oracle,.
 
 ## 📫 Contribuindo para <SCC-0540-PetOng>
 
