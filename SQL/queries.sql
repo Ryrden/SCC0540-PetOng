@@ -119,7 +119,28 @@ ORDER BY PORCENTAGEM_OCUPACAO DESC;
 
 
 
+/*
 
+  Selecionar nro_registro, nome, raça de todos os pets que não tem dono, e que já tomaram as seguintes vacinas: Antirrábica e Raiva. Além disso, trazer junto o nome do petshop o qual o pet está abrigado.
+
+*/
+
+
+
+SELECT  p.registro,
+        p.nome AS NOME_PET,
+        p.raca,
+        petshop.nome,
+        v.nome AS NOME_DONO
+FROM PET p
+LEFT JOIN VOLUNTARIO v ON v.CPF = p.DONO
+INNER JOIN PETSHOP ON petshop.cnpj = p.abrigo
+WHERE NOT EXISTS(
+    (SELECT DISTINCT v.vacina FROM VACINAS v WHERE v.vacina IN ('Antirrábica', 'Raiva'))
+    MINUS
+    (SELECT pv.vacina FROM PET INNER JOIN VACINAS pv ON pv.pet = p.registro)
+)
+AND v.nome IS NULL;
 
 
 
