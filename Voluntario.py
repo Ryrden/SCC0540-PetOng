@@ -5,9 +5,18 @@ from tabulate import tabulate
 class Voluntario:
 
     def __init__(self):
+        '''
+        Este é o construtor da classe System.
+        Ele é responsável por inicializar a conexão com o banco de dados
+        '''
         self.__connection = db.Database()
 
     def insert_volunter(self):
+        '''
+        Essa função é responsável por registrar um novo voluntário no banco de dados.
+        Este  Voluntário pode ser do tipo 'Amador' ou 'Profissional'.
+        '''
+
         print('Dados do Voluntário:\n')
         nome = input('Nome: ')
         cpf = input('CPF (XXX.XXX.XXX-XX): ')
@@ -58,6 +67,10 @@ class Voluntario:
                 print('Voluntário inserido com sucesso')
 
     def delete_volunter(self):
+        '''
+        Essa função é responsável por excluir um voluntário do banco de dados.
+        Para que ela seja executada, é necessário que o usuário informe o CPF do voluntário.
+        '''
         print('Qual o CPF do voluntário que deseja excluir?')
         cpf = input('CPF (XXX.XXX.XXX-XX): ')
 
@@ -76,6 +89,9 @@ class Voluntario:
             print('Operação cancelada')
 
     def list_volunters(self):
+        '''
+        Essa função é responsável por listar todos os voluntários do banco de dados.
+        '''
         SQL = "SELECT * FROM VOLUNTARIO"
         response = self.__connection.runQuery(SQL)
         for row in response:

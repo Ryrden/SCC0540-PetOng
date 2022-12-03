@@ -7,6 +7,13 @@ if env["INSTANT_CLIENT_PATH"]:
 
 
 class Database:
+    '''
+    Essa classe é uma implementação do Padrão de Projeto Singleton
+    Este padrão está sendo utilizado para garantir que apenas uma instância
+    da classe Database seja criada.
+    Essa classe é responsável por realizar a conexão com o banco de dados e 
+    executar as queries.
+    '''
     __instance = None
 
     @staticmethod
@@ -20,12 +27,12 @@ class Database:
             raise Exception("This class is a singleton!")
         else:
             dsn_tns = oracle.makedsn(
-                env["DB_HOST"], 
-                env["DB_PORT"], 
+                env["DB_HOST"],
+                env["DB_PORT"],
                 service_name=env["DB_SERVICE_NAME"])
             Database.__instance = oracle.connect(
-                env["DB_USER"], 
-                env["DB_PASSWORD"], 
+                env["DB_USER"],
+                env["DB_PASSWORD"],
                 dsn_tns)
 
     def runQuery(self, query):

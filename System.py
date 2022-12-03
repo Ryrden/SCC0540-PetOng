@@ -6,10 +6,18 @@ import Voluntario as volunter
 class System:
 
     def __init__(self):
+        '''
+        Este é o construtor da classe System.
+        Ele é responsável por inicializar a conexão com o banco de dados e 
+        as demais instâncias de classes.
+        '''
         self.__connection = db.Database()
         self.__volunter = volunter.Voluntario()
 
     def menu(self):
+        '''
+        Essa função é responsável por exibir o menu principal do sistema.
+        '''
         print('''
         1 - Registrar um novo Voluntário
         2 - Excluir um Voluntário
@@ -25,6 +33,10 @@ class System:
         return option
 
     def run(self):
+        '''
+        Essa função é responsável por executar o sistema e a partir
+        de uma opção do menu, chamar a função responsável por executar
+        '''
         option = self.menu()
         while option != 5:
             if option == 1:
