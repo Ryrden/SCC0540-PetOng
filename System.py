@@ -1,19 +1,25 @@
 
 import Database as db
-from tabulate import tabulate
+import Voluntario as volunter
+
 
 class System:
 
     def __init__(self):
         self.__connection = db.Database()
+        self.__volunter = volunter.Voluntario()
 
     def menu(self):
         print('''
-        1 - Inserir em uma tabela
-        2 - Atualizar uma tabela
-        3 - Deletar uma tabela
-        4 - Listar uma tabela
-        5 - Sair
+        1 - Registrar um novo Voluntário
+        2 - Excluir um Voluntário
+        3 - Listar Voluntários
+        4 - Registrar uma Doação
+        5 - Editar uma Doação
+        6 - Excluir uma Doação
+        7 - Listar Doações
+        8 - Executar Queries Personalizadas
+        9 - Sair
         ''')
         option = int(input('Escolha uma opção: '))
         return option
@@ -22,16 +28,29 @@ class System:
         option = self.menu()
         while option != 5:
             if option == 1:
-                self.insert()
+                self.__volunter.insert_volunter()
             elif option == 2:
-                self.update()
+                self.__volunter.delete_volunter()
             elif option == 3:
-                self.delete()
+                self.__volunter.list_volunters()
             elif option == 4:
-                self.list()
+                self.insert_donation()
+            elif option == 5:
+                self.update_donation()
+            elif option == 6:
+                self.delete_donation()
+            elif option == 7:
+                self.list_donation()
+            elif option == 8:
+                self.custom_query()
+            elif option == 9:
+                self.__connection.close()
+                break
             option = self.menu()
         print('Saindo...')
 
+
+""" 
     def list(self):
         print('''
         1 - Listar tabela TIME
@@ -46,4 +65,5 @@ class System:
     def list_time(self):
         SQL = "SELECT * FROM TIME"
         ans = self.__connection.runQuery(SQL)
-        print(tabulate(ans, headers=['TIME', 'ESTADO', 'TIPO', 'SALDO_GOLS']))
+        print(tabulate(ans, headers=['TIME', 'ESTADO', 'TIPO', 'SALDO_GOLS'])) 
+"""
