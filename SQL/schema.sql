@@ -21,6 +21,7 @@ DROP TABLE PETSHOP;
 
 */
 
+SELECT * FROM VOLUNTARIO;
 
 /*
     Convenção CPF: nnn.nnn.nnn-nn
@@ -283,7 +284,7 @@ CREATE TABLE REMESSA(
 
 
 
-
+commit;
 
 
 

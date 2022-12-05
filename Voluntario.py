@@ -5,10 +5,6 @@ from tabulate import tabulate
 class Voluntario:
 
     def __init__(self):
-        '''
-        Este é o construtor da classe System.
-        Ele é responsável por inicializar a conexão com o banco de dados
-        '''
         self.__connection = db.Database()
 
     def insert_volunter(self):
