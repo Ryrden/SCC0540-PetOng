@@ -1,7 +1,14 @@
 
 import Database as db
 from tabulate import tabulate
+from sys import platform
+import os
 import Voluntario as volunter
+
+if platform == 'linux':
+    clear_screen='clear'
+else:
+    clear_screen='cls'
 
 
 class System:
@@ -39,6 +46,7 @@ class System:
         de uma opção do menu, chamar a função responsável por executar
         '''
         option = self.menu()
+        os.system(clear_screen)
         while option != 5:
             if option == 1:
                 self.insert_volunter()
@@ -155,6 +163,48 @@ class System:
             rows_data.append([row[0], row[1], data, row[3], row[4]])
         print(tabulate(rows_data, headers=['CPF','Nome','Data de Nascimento','Telefone', 'Email']))
 
+
+    def custom_query(self):
+        while (True):
+            submenu='''
+                1 - Executar Query 1
+                2 - Executar Query 2
+                3 - Executar Query 3
+                4 - Executar Query 4
+                5 - Executar Query 5
+                6 - Executar Query 6
+                7 - Voltar ao menu principal
+                '''
+            print(submenu)
+            option = int(input('Escolha uma opção: '))
+            os.system(clear_screen)
+            if (option == 1):
+                SQL='''	SELECT  v.nome AS DONO, 
+        		pet.nome AS PET_NOME, 
+        		v.cpf AS CPF, 
+        		av.data AS DATA, 
+        		av.descricao AS DESCRICAO,
+        		SUM(din.valor) AS DINHEIRO_DOADO
+		FROM ACAO_VOLUNTARIA av
+		INNER JOIN VOLUNTARIO v ON v.cpf = av.voluntario
+		INNER JOIN PET pet ON pet.dono = v.cpf
+		INNER JOIN DINHEIRO_ARRECADADO din ON din.voluntario = v.cpf
+		LEFT OUTER JOIN PRODUTO_DOADO prod ON prod.voluntario = v.cpf
+		WHERE prod.nome IS NULL
+		GROUP BY v.nome, pet.nome, v.cpf, av.data, av.descricao
+		HAVING SUM(din.valor) > 500
+                    '''
+                tab_form=['Dono', 'Nome_Pet', 'CPF', 'Data', 'Descricao', 'Dinheiro doado']
+            elif (option == 2):
+                pass
+            elif (option == 7):
+                break
+            response = self.__connection.runQuery(SQL)
+            rows_data = []
+            for row in response:
+                rows_data.append([row[0], row[1], row[2], row[3].strftime("%d/%m/%Y"), row[4], row[5]])
+            print(tabulate(rows_data, headers=tab_form))
+        print("[+] Voltando ao menu principal")
 
 """
     def list(self):
