@@ -185,20 +185,113 @@ class System:
         		av.data AS DATA, 
         		av.descricao AS DESCRICAO,
         		SUM(din.valor) AS DINHEIRO_DOADO
-		FROM ACAO_VOLUNTARIA av
-		INNER JOIN VOLUNTARIO v ON v.cpf = av.voluntario
-		INNER JOIN PET pet ON pet.dono = v.cpf
-		INNER JOIN DINHEIRO_ARRECADADO din ON din.voluntario = v.cpf
-		LEFT OUTER JOIN PRODUTO_DOADO prod ON prod.voluntario = v.cpf
-		WHERE prod.nome IS NULL
-		GROUP BY v.nome, pet.nome, v.cpf, av.data, av.descricao
-		HAVING SUM(din.valor) > 500
-                    '''
+		        FROM ACAO_VOLUNTARIA av
+		        INNER JOIN VOLUNTARIO v ON v.cpf = av.voluntario
+		        INNER JOIN PET pet ON pet.dono = v.cpf
+		        INNER JOIN DINHEIRO_ARRECADADO din ON din.voluntario = v.cpf
+		        LEFT OUTER JOIN PRODUTO_DOADO prod ON prod.voluntario = v.cpf
+		        WHERE prod.nome IS NULL
+		        GROUP BY v.nome, pet.nome, v.cpf, av.data, av.descricao
+		        HAVING SUM(din.valor) > 500
+                 '''
                 tab_form=['Dono', 'Nome_Pet', 'CPF', 'Data', 'Descricao', 'Dinheiro doado']
+
             elif (option == 2):
-                pass
-            elif (option == 7):
+                SQL = '''SELECT aprof.profissional AS CPF,
+                        prof.nome AS NOME,
+                        prof.email AS EMAIL,
+                        COALESCE(d.dinheiro_doado, 0) AS DINHEIRO DOADO,
+                        COALESCE(p.qnt_doada, 0) AS PRODUTOS DOADOS,
+                        COUNT (aprof.profissional) AS N_ACOES
+                        FROM ACAO PROFISSIONAL aprof
+                        LEFT JOIN (
+                        SELECT din.voluntario AS CPF, SUM(din.valor) AS dinheiro doado FROM DINHEIRO ARRECADADO din GROUP BY din.voluntario ) d ON d.cpf = aprof.profissional
+                        LEFT JOIN (
+                        SELECT prod.voluntario AS CPF, SUM(prod.quantidade) AS qnt_doada FROM PRODUTO_DOADO prod GROUP BY prod.voluntario ) p ON p.cpf= aprof.profissional
+                        INNER JOIN VOLUNTARIO prof ON prof.cpfaprof.profissional
+                        GROUP BY aprof.profissional, prof.nome, prof.email, d.dinheiro_doado, p.qnt_doada
+                        HAVING COUNT(aprof.profissional) >= 2
+                        AND (d.dinheiro_doado >= 300 OR p.qnt_doada > 3);
+                        '''
+                tab_form = ['CPF', 'Nome_Pro', 'Email', 'Dinheiro doado', 'Produtos doados', 'Nro de Ações']
+
+            elif (option == 3):
+                SQL = '''SELECT prof.voluntario AS CPF,
+                        vo.nome AS NOME,
+                        vo.data nascimento AS DATA NASCIMENTO,
+                        vo.email AS EMAIL,
+                        SUM(prod.quantidade) AS QNT PRODUTOS
+                        FROM VOLUNTARIO_PROFISSIONAL prof
+                        INNER JOIN ACAO_PROFISSIONAL aprof ON aprof.profissional = prof.voluntario
+                        INNER JOIN PET pet ON pet.dono = prof.voluntario
+                        INNER JOIN PRODUTO_DOADO prod ON prod.voluntario = prof.voluntario
+                        LEFT OUTER JOIN DINHEIRO_ARRECADADO din ON din.voluntario = prof.voluntario
+                        INNER JOIN VOLUNTARIO vo ON vo.cpf = prof.voluntario
+                        
+                        WHERE aprof.descricao = 'Castração' AND din.valor IS NULL
+                        GROUP BY prof.voluntario, vo.nome, vo.data_nascimento, vo.email, aprof.descricao 
+                        HAVING SUM(prod. quantidade) > 5
+                        ORDER BY QNT PRODUTOS ASC;
+                        '''
+                tab_form = ['CPF', 'Nome Voluntário', 'Nascimento', 'Email', 'Qtd Produtos']
+
+            elif (option == 4):
+                SQL = '''SELECT petshop.cnpj AS CNPJ, 
+                        petshop.nome AS NOME,
+                        reme.petshop AS PETSHOP,
+                        COALESCE (promoc. part, 0) AS NUMERO PARTICIAPACAO, 
+                        SUM(prod.quantidade) AS QNT_PROD_RECEBIDO
+                        FROM PETSHOP petshop
+                        INNER JOIN REMESSA reme ON reme.petshop = petshop.cnpj
+                        INNER JOIN PRODUTO_DOADO prod ON prod.voluntario = reme.voluntario AND prod.data = reme.data_doacao 
+                        LEFT JOIN (
+                        SELECT promocao. petshop AS cnpj, COUNT (promocao.petshop) AS part FROM PROMOCAO GROUP BY promocao.petshop ) 
+                        promoc ON promoc.cnpj = petshop.cnpj
+                        GROUP BY petshop.cnpj, petshop.nome, reme.petshop, promoc.part
+                        ORDER BY QNT PROD RECEBIDO DESC;
+                        '''
+                tab_form = ['CNPJ', 'PetShop', 'Remessa', 'Participação', 'Qtd Produtos Recebidos']
+
+            elif (option == 5):
+                SQL = '''SELECT petshop.cnpj AS CNPJ, 
+                        petshop.nome AS NOME,
+                        petshop.n_pets AS N MAX DE PETS,
+                        COALESCE(info.ocup,0) AS N DE PETS,
+                        COALESCE((info.ocup/petshop.n_pets)*100,0) AS PORCENTAGEM OCUPACAO,
+                        COUNT(promo.petshop) AS PARTICIPACÃO_PROMO
+                        FROM PETSHOP petshop
+                        LEFT JOIN PROMOCAO promo ON promo.petshop = petshop.cnpj
+                        LEFT JOIN (
+                            SELECT pet.abrigo AS cnpj, count (pet.abrigo) AS ocup 
+                            FROM PET pet 
+                            WHERE pet.dono IS NULL GROUP BY pet.abrigo ) 
+                        info ON info.cnpj petshop.cnpj
+                        GROUP BY petshop.cnpj, petshop.nome, petshop.n_pets, COALESCE(info.ocup, 0), COALESCE((info.ocup/petshop.n_pets)*100,0) HAVING COUNT (promo.petshop) >= 1
+                        ORDER BY PORCENTAGEM OCUPACAO DESC;
+                        '''
+                tab_form = ['CNPJ', 'PetShop', 'Nro max Pets', 'Pets', '% Ocupada', 'Participação']
+
+            elif (option == 6):
+                SQL = '''SELECT  p.registro,
+                        p.nome AS NOME_PET,
+                        p.raca,
+                        petshop.nome,
+                        v.nome AS NOME_DONO
+                        FROM PET p
+                        LEFT JOIN VOLUNTARIO v ON v.CPF = p.DONO
+                        INNER JOIN PETSHOP ON petshop.cnpj = p.abrigo
+                        WHERE NOT EXISTS(
+                        (SELECT DISTINCT v.vacina FROM VACINAS v WHERE v.vacina IN ('Antirrábica', 'Raiva'))
+                        MINUS
+                        (SELECT pv.vacina FROM PET INNER JOIN VACINAS pv ON pv.pet = p.registro)
+                        )
+                        AND v.nome IS NULL;
+                        '''
+                tab_form = ['Reg Pet', 'Nome', 'Raça', 'Petshop', 'Dono']
+
+            elif (option >= 7):
                 break
+            
             response = self.__connection.runQuery(SQL)
             rows_data = []
             for row in response:
