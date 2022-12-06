@@ -30,12 +30,9 @@ SELECT * FROM VOLUNTARIO;
     Convenção CEP: nnnnn-nnn
     Convenção CRM: CRM/SP nnnnnn
     Convenção CNPJ: nn.nnn.nnn/nnnn-nn
-    Convenção Email: foo.bar@gmail.com || alguem@orgao.uf.gov.br || etc --Apagar essa linha se não for usar
 */
 
 
--- Não precisa do atributo TIPO?
--- Não é uma boa ideia fazer uma regex pro email? ou isso é nível aplicação)
 CREATE TABLE VOLUNTARIO(
     CPF CHAR(14) NOT NULL,
     NOME VARCHAR2(50) NOT NULL,
@@ -154,7 +151,6 @@ CREATE TABLE EVENTO (
     CONSTRAINT CK_EVENTO CHECK (REGEXP_LIKE(CEP, '[0-9]{5}-[0-9]{3}'))
 );
 
--- Não é uma boa ter um check para email?
 CREATE TABLE MEMBRO(
     CPF CHAR(14) NOT NULL,
     NOME VARCHAR2(50) NOT NULL,
@@ -230,8 +226,6 @@ CREATE TABLE PROMOCAO(
 );
 
 
--- Ter um check para Genero e especie é interessante
--- visto que limitamos o escopo do projeto para cães e gatos somente
 CREATE TABLE PET(
     REGISTRO NUMBER NOT NULL,
     ESPECIE VARCHAR2(30),
@@ -247,7 +241,6 @@ CREATE TABLE PET(
     CONSTRAINT PK_PET PRIMARY KEY(REGISTRO),
     CONSTRAINT FK1_PET FOREIGN KEY(ABRIGO)
                        REFERENCES PETSHOP(CNPJ),
-                       --ON DELETE CASCADE, -- ISTO ESTA ERRADO!!!!
     CONSTRAINT FK2_PET FOREIGN KEY(DONO)
                        REFERENCES VOLUNTARIO_AMADOR(VOLUNTARIO)
                        ON DELETE SET NULL

@@ -4,6 +4,7 @@ from tabulate import tabulate
 from sys import platform
 import os
 import Voluntario as volunter
+import datetime
 
 if platform == 'linux':
     clear_screen='clear'
@@ -30,12 +31,8 @@ class System:
         1 - Registrar um novo Voluntário
         2 - Excluir um Voluntário
         3 - Listar Voluntários
-        4 - Registrar uma Doação
-        5 - Editar uma Doação
-        6 - Excluir uma Doação
-        7 - Listar Doações
-        8 - Executar Queries Personalizadas
-        9 - Sair
+        4 - Executar Queries Personalizadas
+        5 - Sair
         ''')
         option = int(input('Escolha uma opção: '))
         return option
@@ -54,20 +51,15 @@ class System:
                 self.delete_volunter()
             elif option == 3:
                 self.list_volunters()
-            elif option == 4:
-                self.insert_donation()
             elif option == 5:
-                self.update_donation()
-            elif option == 6:
-                self.delete_donation()
-            elif option == 7:
-                self.list_donation()
-            elif option == 8:
+                break
+            elif option == 4:
                 self.custom_query()
             elif option == 9:
                 self.__connection.close()
                 break
             option = self.menu()
+            os.system(clear_screen)
         print('Saindo...')
 
     # VOLUNTARIO
@@ -85,44 +77,46 @@ class System:
         telefone = input('Telefone (xx x xxxx-xxxx): ')
         email = input('Email (exemplo@email.com): ')
 
+        dataNascimento = datetime.datetime.strptime(dataNascimento, '%d/%m/%Y')
+
         print('\n Tipo de voluntário\n')
         tipo = input('Tipo (Amador || Profissional): ')
 
         SQL_AMADOR = ""
         SQL_PROFISSIONAL = ""
 
-        if (tipo == 'Amador'):
+        if (tipo.upper() == 'AMADOR'):
             print("Endereço do Voluntário Amador:\n")
             cep = input('CEP (xxxxx-xxx): ')
             numero = input('Número: ')
             complemento = input('Complemento: ')
 
-            SQL_AMADOR = '''INSERT INTO VOLUNTARIO_AMADOR (CEP, NUMERO, COMPLEMENTO)
-                VALUES (:cep, :numero, :complemento)'''
-        elif (tipo == 'Profissional'):
+            SQL_AMADOR = '''INSERT INTO VOLUNTARIO_AMADOR (VOLUNTARIO, CEP, NUMERO, COMPLEMENTO)
+                VALUES (:cpf, :cep, :numero, :complemento)'''
+        elif (tipo.upper() == 'PROFISSIONAL'):
             print("CRM do Voluntário Profissional:\n")
             crm = input('CRM ([SiglaEstado] XXXXXX): ')
 
-            SQL_PROFISSIONAL = '''INSERT INTO VOLUNTARIO_PROFISSIONAL (CRM)
-                VALUES (:crm)'''
+            SQL_PROFISSIONAL = '''INSERT INTO VOLUNTARIO_PROFISSIONAL (VOLUNTARIO, CRM)
+                VALUES (:cpf, :crm)'''
         else:
             print('Tipo inválido')
             return
 
         print('\nInserindo voluntario...')
         # Tratando SQL Injection
-        SQL_VOLUNTARIO = '''INSERT INTO VOLUNTARIO(nome, cpf, dataNascimento, telefone, email, tipo)
-            VALUES(: nome, : cpf, : dataNascimento, : telefone, : email, : tipo)'''
+        SQL_VOLUNTARIO = '''INSERT INTO VOLUNTARIO(nome, cpf, data_Nascimento, telefone, email)
+            VALUES(: nome, : cpf, : dataNascimento, : telefone, : email)'''
         responde_voluntario = self.__connection.runQueryWithParams(
-            SQL_VOLUNTARIO, [nome, cpf, dataNascimento, telefone, email, tipo])
+            SQL_VOLUNTARIO, [nome, cpf, dataNascimento, telefone, email])
 
         if (responde_voluntario):
             if (SQL_AMADOR != ""):
                 response_amador = self.__connection.runQueryWithParams(
-                    SQL_AMADOR, [cep, numero, complemento])
+                    SQL_AMADOR, [cpf, cep, numero, complemento])
             if (SQL_PROFISSIONAL != ""):
                 response_profissional = self.__connection.runQueryWithParams(
-                    SQL_PROFISSIONAL, [crm])
+                    SQL_PROFISSIONAL, [cpf, crm])
 
             if (response_amador or response_profissional):
                 print('Voluntário inserido com sucesso')
@@ -156,7 +150,6 @@ class System:
 
         SQL = "SELECT * FROM VOLUNTARIO"
         response = self.__connection.runQuery(SQL)
-        #print("CPF\tNome\tData de Nascimento\tTelefone\tEmail")
         rows_data = []
         for row in response:
             data = row[2].strftime("%d/%m/%Y")
@@ -197,96 +190,98 @@ class System:
                 tab_form=['Dono', 'Nome_Pet', 'CPF', 'Data', 'Descricao', 'Dinheiro doado']
 
             elif (option == 2):
-                SQL = '''SELECT aprof.profissional AS CPF,
-                        prof.nome AS NOME,
-                        prof.email AS EMAIL,
-                        COALESCE(d.dinheiro_doado, 0) AS DINHEIRO DOADO,
-                        COALESCE(p.qnt_doada, 0) AS PRODUTOS DOADOS,
-                        COUNT (aprof.profissional) AS N_ACOES
-                        FROM ACAO PROFISSIONAL aprof
-                        LEFT JOIN (
-                        SELECT din.voluntario AS CPF, SUM(din.valor) AS dinheiro doado FROM DINHEIRO ARRECADADO din GROUP BY din.voluntario ) d ON d.cpf = aprof.profissional
-                        LEFT JOIN (
-                        SELECT prod.voluntario AS CPF, SUM(prod.quantidade) AS qnt_doada FROM PRODUTO_DOADO prod GROUP BY prod.voluntario ) p ON p.cpf= aprof.profissional
-                        INNER JOIN VOLUNTARIO prof ON prof.cpfaprof.profissional
-                        GROUP BY aprof.profissional, prof.nome, prof.email, d.dinheiro_doado, p.qnt_doada
-                        HAVING COUNT(aprof.profissional) >= 2
-                        AND (d.dinheiro_doado >= 300 OR p.qnt_doada > 3);
-                        '''
+                SQL = '''
+		SELECT  aprof.profissional AS CPF,
+        		prof.nome AS NOME,
+        		prof.email AS EMAIL,
+        		COALESCE(d.dinheiro_doado, 0) AS DINHEIRO_DOADO,
+        		COALESCE(p.qnt_doada, 0) AS PRODUTOS_DOADOS,
+        		COUNT(aprof.profissional) AS N_ACOES
+		FROM ACAO_PROFISSIONAL aprof
+		LEFT JOIN (
+			    SELECT din.voluntario AS CPF, SUM(din.valor) AS dinheiro_doado FROM DINHEIRO_ARRECADADO din GROUP BY din.voluntario
+		) d ON d.cpf = aprof.profissional
+		LEFT JOIN (
+    				SELECT prod.voluntario AS CPF, SUM(prod.quantidade) AS qnt_doada FROM PRODUTO_DOADO prod GROUP BY prod.voluntario
+		) p ON p.cpf = aprof.profissional
+		INNER JOIN VOLUNTARIO prof ON prof.cpf = aprof.profissional
+		GROUP BY aprof.profissional, prof.nome, prof.email, d.dinheiro_doado, p.qnt_doada
+		HAVING COUNT(aprof.profissional) >= 2 
+		AND (d.dinheiro_doado >= 300 OR p.qnt_doada > 3)                        '''
                 tab_form = ['CPF', 'Nome_Pro', 'Email', 'Dinheiro doado', 'Produtos doados', 'Nro de Ações']
 
             elif (option == 3):
-                SQL = '''SELECT prof.voluntario AS CPF,
-                        vo.nome AS NOME,
-                        vo.data nascimento AS DATA NASCIMENTO,
-                        vo.email AS EMAIL,
-                        SUM(prod.quantidade) AS QNT PRODUTOS
-                        FROM VOLUNTARIO_PROFISSIONAL prof
-                        INNER JOIN ACAO_PROFISSIONAL aprof ON aprof.profissional = prof.voluntario
-                        INNER JOIN PET pet ON pet.dono = prof.voluntario
-                        INNER JOIN PRODUTO_DOADO prod ON prod.voluntario = prof.voluntario
-                        LEFT OUTER JOIN DINHEIRO_ARRECADADO din ON din.voluntario = prof.voluntario
-                        INNER JOIN VOLUNTARIO vo ON vo.cpf = prof.voluntario
-                        
-                        WHERE aprof.descricao = 'Castração' AND din.valor IS NULL
-                        GROUP BY prof.voluntario, vo.nome, vo.data_nascimento, vo.email, aprof.descricao 
-                        HAVING SUM(prod. quantidade) > 5
-                        ORDER BY QNT PRODUTOS ASC;
+                SQL = '''
+			SELECT  prof.voluntario         AS CPF,
+        vo.nome                 AS NOME,
+        vo.data_nascimento      AS DATA_NASCIMENTO,
+        vo.email                AS EMAIL,
+        SUM(prod.quantidade)    AS QNT_PRODUTOS
+FROM VOLUNTARIO_PROFISSIONAL prof
+INNER JOIN ACAO_PROFISSIONAL aprof ON aprof.profissional = prof.voluntario
+INNER JOIN PET pet ON pet.dono = prof.voluntario
+INNER JOIN PRODUTO_DOADO prod ON prod.voluntario = prof.voluntario
+LEFT OUTER JOIN DINHEIRO_ARRECADADO din ON din.voluntario = prof.voluntario
+INNER JOIN VOLUNTARIO vo ON vo.cpf = prof.voluntario
+WHERE aprof.descricao = 'Castração' AND din.valor IS NULL
+GROUP BY prof.voluntario, vo.nome, vo.data_nascimento, vo.email, aprof.descricao
+HAVING SUM(prod.quantidade) > 5
+ORDER BY QNT_PRODUTOS ASC
                         '''
                 tab_form = ['CPF', 'Nome Voluntário', 'Nascimento', 'Email', 'Qtd Produtos']
 
             elif (option == 4):
-                SQL = '''SELECT petshop.cnpj AS CNPJ, 
-                        petshop.nome AS NOME,
-                        reme.petshop AS PETSHOP,
-                        COALESCE (promoc. part, 0) AS NUMERO PARTICIAPACAO, 
-                        SUM(prod.quantidade) AS QNT_PROD_RECEBIDO
-                        FROM PETSHOP petshop
-                        INNER JOIN REMESSA reme ON reme.petshop = petshop.cnpj
-                        INNER JOIN PRODUTO_DOADO prod ON prod.voluntario = reme.voluntario AND prod.data = reme.data_doacao 
-                        LEFT JOIN (
-                        SELECT promocao. petshop AS cnpj, COUNT (promocao.petshop) AS part FROM PROMOCAO GROUP BY promocao.petshop ) 
-                        promoc ON promoc.cnpj = petshop.cnpj
-                        GROUP BY petshop.cnpj, petshop.nome, reme.petshop, promoc.part
-                        ORDER BY QNT PROD RECEBIDO DESC;
-                        '''
+                SQL = '''
+SELECT  petshop.cnpj    AS CNPJ,
+        petshop.nome    AS NOME,
+        reme.petshop    AS PETSHOP,
+        COALESCE(promoc.part, 0) AS NUMERO_PARTICIAPACAO,
+        SUM(prod.quantidade) AS QNT_PROD_RECEBIDO
+        
+FROM PETSHOP petshop
+INNER JOIN REMESSA reme ON reme.petshop = petshop.cnpj
+INNER JOIN PRODUTO_DOADO prod ON prod.voluntario = reme.voluntario AND prod.data = reme.data_doacao
+LEFT JOIN (
+    SELECT promocao.petshop AS cnpj, COUNT(promocao.petshop) AS part FROM PROMOCAO GROUP BY promocao.petshop
+) promoc ON promoc.cnpj = petshop.cnpj
+GROUP BY petshop.cnpj, petshop.nome, reme.petshop, promoc.part
+ORDER BY QNT_PROD_RECEBIDO DESC                        '''
                 tab_form = ['CNPJ', 'PetShop', 'Remessa', 'Participação', 'Qtd Produtos Recebidos']
 
             elif (option == 5):
-                SQL = '''SELECT petshop.cnpj AS CNPJ, 
-                        petshop.nome AS NOME,
-                        petshop.n_pets AS N MAX DE PETS,
-                        COALESCE(info.ocup,0) AS N DE PETS,
-                        COALESCE((info.ocup/petshop.n_pets)*100,0) AS PORCENTAGEM OCUPACAO,
-                        COUNT(promo.petshop) AS PARTICIPACÃO_PROMO
-                        FROM PETSHOP petshop
-                        LEFT JOIN PROMOCAO promo ON promo.petshop = petshop.cnpj
-                        LEFT JOIN (
-                            SELECT pet.abrigo AS cnpj, count (pet.abrigo) AS ocup 
-                            FROM PET pet 
-                            WHERE pet.dono IS NULL GROUP BY pet.abrigo ) 
-                        info ON info.cnpj petshop.cnpj
-                        GROUP BY petshop.cnpj, petshop.nome, petshop.n_pets, COALESCE(info.ocup, 0), COALESCE((info.ocup/petshop.n_pets)*100,0) HAVING COUNT (promo.petshop) >= 1
-                        ORDER BY PORCENTAGEM OCUPACAO DESC;
-                        '''
+                SQL = '''
+SELECT  petshop.cnpj    AS CNPJ,
+        petshop.nome    AS NOME,
+        petshop.n_pets  AS N_MAX_DE_PETS,
+        COALESCE(info.ocup,0)       AS N_DE_PETS,
+        COALESCE((info.ocup/petshop.n_pets)*100,0) AS PORCENTAGEM_OCUPACAO,
+        COUNT(promo.petshop)                        AS PARTICIPACAO_PROMO
+FROM PETSHOP petshop
+LEFT JOIN PROMOCAO promo ON promo.petshop = petshop.cnpj
+LEFT JOIN (
+    SELECT pet.abrigo AS cnpj, count(pet.abrigo) AS ocup FROM PET pet WHERE pet.dono IS NULL GROUP BY pet.abrigo
+) info ON info.cnpj = petshop.cnpj
+GROUP BY petshop.cnpj, petshop.nome, petshop.n_pets, COALESCE(info.ocup,0), COALESCE((info.ocup/petshop.n_pets)*100,0)
+HAVING COUNT(promo.petshop) >= 1
+ORDER BY PORCENTAGEM_OCUPACAO DESC                        '''
                 tab_form = ['CNPJ', 'PetShop', 'Nro max Pets', 'Pets', '% Ocupada', 'Participação']
 
             elif (option == 6):
-                SQL = '''SELECT  p.registro,
-                        p.nome AS NOME_PET,
-                        p.raca,
-                        petshop.nome,
-                        v.nome AS NOME_DONO
-                        FROM PET p
-                        LEFT JOIN VOLUNTARIO v ON v.CPF = p.DONO
-                        INNER JOIN PETSHOP ON petshop.cnpj = p.abrigo
-                        WHERE NOT EXISTS(
-                        (SELECT DISTINCT v.vacina FROM VACINAS v WHERE v.vacina IN ('Antirrábica', 'Raiva'))
-                        MINUS
-                        (SELECT pv.vacina FROM PET INNER JOIN VACINAS pv ON pv.pet = p.registro)
-                        )
-                        AND v.nome IS NULL;
-                        '''
+                SQL = '''
+SELECT  petshop.cnpj    AS CNPJ,
+        petshop.nome    AS NOME,
+        petshop.n_pets  AS N_MAX_DE_PETS,
+        COALESCE(info.ocup,0)       AS N_DE_PETS,
+        COALESCE((info.ocup/petshop.n_pets)*100,0) AS PORCENTAGEM_OCUPACAO,
+        COUNT(promo.petshop)                        AS PARTICIPACAO_PROMO
+FROM PETSHOP petshop
+LEFT JOIN PROMOCAO promo ON promo.petshop = petshop.cnpj
+LEFT JOIN (
+    SELECT pet.abrigo AS cnpj, count(pet.abrigo) AS ocup FROM PET pet WHERE pet.dono IS NULL GROUP BY pet.abrigo
+) info ON info.cnpj = petshop.cnpj
+GROUP BY petshop.cnpj, petshop.nome, petshop.n_pets, COALESCE(info.ocup,0), COALESCE((info.ocup/petshop.n_pets)*100,0)
+HAVING COUNT(promo.petshop) >= 1
+ORDER BY PORCENTAGEM_OCUPACAO DESC                        '''
                 tab_form = ['Reg Pet', 'Nome', 'Raça', 'Petshop', 'Dono']
 
             elif (option >= 7):
@@ -294,25 +289,10 @@ class System:
             
             response = self.__connection.runQuery(SQL)
             rows_data = []
-            for row in response:
-                rows_data.append([row[0], row[1], row[2], row[3].strftime("%d/%m/%Y"), row[4], row[5]])
+            for i, row in enumerate(response):
+                rows_data.append([])
+                for e in row:
+                    rows_data[i].append(e)
             print(tabulate(rows_data, headers=tab_form))
         print("[+] Voltando ao menu principal")
 
-"""
-    def list(self):
-        print('''
-        1 - Listar tabela TIME
-        2 - Listar tabela JOGADOR
-        ''')
-        option = int(input('Escolha uma opção: '))
-        if option == 1:
-            self.list_time()
-        elif option == 2:
-            self.list_jogador()
-
-    def list_time(self):
-        SQL = "SELECT * FROM TIME"
-        ans = self.__connection.runQuery(SQL)
-        print(tabulate(ans, headers=['TIME', 'ESTADO', 'TIPO', 'SALDO_GOLS'])) 
-"""
