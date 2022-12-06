@@ -26,6 +26,7 @@ class Database:
         if Database.__instance != None:
             raise Exception("This class is a singleton!")
         else:
+            print("[+] Conectando com o banco. Isso pode demorar um pouco...")
             dsn_tns = oracle.makedsn(
                 env["DB_HOST"],
                 env["DB_PORT"],

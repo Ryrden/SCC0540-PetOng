@@ -148,28 +148,14 @@ class System:
 
         SQL = "SELECT * FROM VOLUNTARIO"
         response = self.__connection.runQuery(SQL)
-        print("CPF\tNome\tData de Nascimento\tTelefone\tEmail")
+        #print("CPF\tNome\tData de Nascimento\tTelefone\tEmail")
+        rows_data = []
         for row in response:
             data = row[2].strftime("%d/%m/%Y")
-            
-            print(row[0], row[1], data, row[3], row[4], sep='\t')
-
-            """ print(row)
-            teste = list(row)
-            print(teste)
-            teste[2] = data
-            print(teste)
-            teste2 = tuple(teste)
-            print(teste2) """
+            rows_data.append([row[0], row[1], data, row[3], row[4]])
+        print(tabulate(rows_data, headers=['CPF','Nome','Data de Nascimento','Telefone', 'Email']))
 
 
-            """ print(tabulate(row, headers=[
-                'Nome',
-                'CPF',
-                'Data de Nascimento',
-                'Telefone',
-                'Email']))
- """
 """
     def list(self):
         print('''
