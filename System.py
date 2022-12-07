@@ -3,13 +3,12 @@ import Database as db
 from tabulate import tabulate
 from sys import platform
 import os
-import Voluntario as volunter
 import datetime
 
 if platform == 'linux':
-    clear_screen='clear'
+    clear_screen = 'clear'
 else:
-    clear_screen='cls'
+    clear_screen = 'cls'
 
 
 class System:
@@ -51,11 +50,9 @@ class System:
                 self.delete_volunter()
             elif option == 3:
                 self.list_volunters()
-            elif option == 5:
-                break
             elif option == 4:
                 self.custom_query()
-            elif option == 9:
+            elif option == 5:
                 self.__connection.close()
                 break
             option = self.menu()
@@ -154,12 +151,12 @@ class System:
         for row in response:
             data = row[2].strftime("%d/%m/%Y")
             rows_data.append([row[0], row[1], data, row[3], row[4]])
-        print(tabulate(rows_data, headers=['CPF','Nome','Data de Nascimento','Telefone', 'Email']))
-
+        print(tabulate(rows_data, headers=[
+              'CPF', 'Nome', 'Data de Nascimento', 'Telefone', 'Email']))
 
     def custom_query(self):
         while (True):
-            submenu='''
+            submenu = '''
                 1 - Executar Query 1
                 2 - Executar Query 2
                 3 - Executar Query 3
@@ -172,7 +169,7 @@ class System:
             option = int(input('Escolha uma opção: '))
             os.system(clear_screen)
             if (option == 1):
-                SQL='''	SELECT  v.nome AS DONO, 
+                SQL = '''	SELECT  v.nome AS DONO, 
         		pet.nome AS PET_NOME, 
         		v.cpf AS CPF, 
         		av.data AS DATA, 
@@ -187,7 +184,8 @@ class System:
 		        GROUP BY v.nome, pet.nome, v.cpf, av.data, av.descricao
 		        HAVING SUM(din.valor) > 500
                  '''
-                tab_form=['Dono', 'Nome_Pet', 'CPF', 'Data', 'Descricao', 'Dinheiro doado']
+                tab_form = ['Dono', 'Nome_Pet', 'CPF',
+                            'Data', 'Descricao', 'Dinheiro doado']
 
             elif (option == 2):
                 SQL = '''
@@ -208,7 +206,8 @@ class System:
 		GROUP BY aprof.profissional, prof.nome, prof.email, d.dinheiro_doado, p.qnt_doada
 		HAVING COUNT(aprof.profissional) >= 2 
 		AND (d.dinheiro_doado >= 300 OR p.qnt_doada > 3)                        '''
-                tab_form = ['CPF', 'Nome_Pro', 'Email', 'Dinheiro doado', 'Produtos doados', 'Nro de Ações']
+                tab_form = ['CPF', 'Nome_Pro', 'Email',
+                            'Dinheiro doado', 'Produtos doados', 'Nro de Ações']
 
             elif (option == 3):
                 SQL = '''
@@ -228,7 +227,8 @@ GROUP BY prof.voluntario, vo.nome, vo.data_nascimento, vo.email, aprof.descricao
 HAVING SUM(prod.quantidade) > 5
 ORDER BY QNT_PRODUTOS ASC
                         '''
-                tab_form = ['CPF', 'Nome Voluntário', 'Nascimento', 'Email', 'Qtd Produtos']
+                tab_form = ['CPF', 'Nome Voluntário',
+                            'Nascimento', 'Email', 'Qtd Produtos']
 
             elif (option == 4):
                 SQL = '''
@@ -246,7 +246,8 @@ LEFT JOIN (
 ) promoc ON promoc.cnpj = petshop.cnpj
 GROUP BY petshop.cnpj, petshop.nome, reme.petshop, promoc.part
 ORDER BY QNT_PROD_RECEBIDO DESC                        '''
-                tab_form = ['CNPJ', 'PetShop', 'Remessa', 'Participação', 'Qtd Produtos Recebidos']
+                tab_form = ['CNPJ', 'PetShop', 'Remessa',
+                            'Participação', 'Qtd Produtos Recebidos']
 
             elif (option == 5):
                 SQL = '''
@@ -264,7 +265,8 @@ LEFT JOIN (
 GROUP BY petshop.cnpj, petshop.nome, petshop.n_pets, COALESCE(info.ocup,0), COALESCE((info.ocup/petshop.n_pets)*100,0)
 HAVING COUNT(promo.petshop) >= 1
 ORDER BY PORCENTAGEM_OCUPACAO DESC                        '''
-                tab_form = ['CNPJ', 'PetShop', 'Nro max Pets', 'Pets', '% Ocupada', 'Participação']
+                tab_form = ['CNPJ', 'PetShop', 'Nro max Pets',
+                            'Pets', '% Ocupada', 'Participação']
 
             elif (option == 6):
                 SQL = '''
@@ -286,7 +288,7 @@ ORDER BY PORCENTAGEM_OCUPACAO DESC                        '''
 
             elif (option >= 7):
                 break
-            
+
             response = self.__connection.runQuery(SQL)
             rows_data = []
             for i, row in enumerate(response):
@@ -295,4 +297,3 @@ ORDER BY PORCENTAGEM_OCUPACAO DESC                        '''
                     rows_data[i].append(e)
             print(tabulate(rows_data, headers=tab_form))
         print("[+] Voltando ao menu principal")
-
