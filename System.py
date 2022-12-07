@@ -155,6 +155,9 @@ class System:
               'CPF', 'Nome', 'Data de Nascimento', 'Telefone', 'Email']))
 
     def custom_query(self):
+        '''
+        Essa função é responsável por executar uma query customizada criadas a parte do trabalho.
+        '''
         while (True):
             submenu = '''
                 1 - Executar Query 1
