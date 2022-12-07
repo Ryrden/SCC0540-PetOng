@@ -1,8 +1,8 @@
 # SCC-0540-PetOng
 
-<img src="exemplo-image.png" alt="exemplo imagem">
+<!-- <img src="exemplo-image.png" alt="exemplo imagem"> -->
 
-> Projeto da Disciplina de Bases de Dados 
+> Projeto da Disciplina de Bases de Dados, trata-se de um sistema de adoção de animais.
 ## 💻 Pré-requisitos
 
 Antes de começar, verifique se você atendeu aos seguintes requisitos:
