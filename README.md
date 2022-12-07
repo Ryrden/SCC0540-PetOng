@@ -39,6 +39,10 @@ onde `host` é o host do banco de dados, `port` é a porta do banco de dados e `
 
 Exemplo: `INSTANT_CLIENT_PATH=C:\Users\Desktop\instantclient_19_8`
 
+Antes de executar o projeto, rode o arquivos `schema.sql` e `script.sql` no seu banco de dados Oracle.
+
+o arquivo `schema.sql` cria o schema do banco de dados e o arquivo `script.sql` cria as tabelas e popula o banco de dados.
+
 Para rodar o projeto, rode o comando `python app.py` ou `python3 app.py` no terminal estando na raiz do projeto.
 
 [⬆ Voltar ao topo](#SCC-0540-PetOng)<br>
