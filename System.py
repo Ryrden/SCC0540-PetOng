@@ -1,5 +1,6 @@
 
 import Database as db
+import cx_Oracle
 from tabulate import tabulate
 from sys import platform
 import os
@@ -74,8 +75,11 @@ class System:
         telefone = input('Telefone (xx x xxxx-xxxx): ')
         email = input('Email (exemplo@email.com): ')
 
-        dataNascimento = datetime.datetime.strptime(dataNascimento, '%d/%m/%Y')
-
+        try:
+            dataNascimento = datetime.datetime.strptime(dataNascimento, '%d/%m/%Y')
+        except ValueError:
+            print("[-] Data esta com o formato errado")
+            return
         print('\n Tipo de voluntário\n')
         tipo = input('Tipo (Amador || Profissional): ')
 
@@ -104,9 +108,15 @@ class System:
         # Tratando SQL Injection
         SQL_VOLUNTARIO = '''INSERT INTO VOLUNTARIO(nome, cpf, data_Nascimento, telefone, email)
             VALUES(: nome, : cpf, : dataNascimento, : telefone, : email)'''
-        responde_voluntario = self.__connection.runQueryWithParams(
+        try:
+            responde_voluntario = self.__connection.runQueryWithParams(
             SQL_VOLUNTARIO, [nome, cpf, dataNascimento, telefone, email])
+        except cx_Oracle.IntegrityError as e:
+            print(f"[-] Error : {e}")
+            return
 
+        response_profissional=False
+        response_amador=False
         if (responde_voluntario):
             if (SQL_AMADOR != ""):
                 response_amador = self.__connection.runQueryWithParams(
@@ -152,7 +162,7 @@ class System:
             data = row[2].strftime("%d/%m/%Y")
             rows_data.append([row[0], row[1], data, row[3], row[4]])
         print(tabulate(rows_data, headers=[
-              'CPF', 'Nome', 'Data de Nascimento', 'Telefone', 'Email']))
+              'CPF', 'Nome', 'Data de Nascimento', 'Email', 'Telefone']))
 
     def custom_query(self):
         '''
